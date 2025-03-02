@@ -2,7 +2,7 @@ import React from 'react'
 
 function NotFoundChild() {
   return (
-    <div>NotFoundChild</div>
+    <div>Dashboard content NotFound, place the error page Here</div>
   )
 }
 

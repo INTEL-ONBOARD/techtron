@@ -7,19 +7,27 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
+//layouts
+import RootLayout from "./layouts/RootLayout.jsx";
+import HomeLayout from "./layouts/HomeLayout.jsx";
 //pages
 import Login from "./pages/Login.jsx";
 import Home from "./pages/Home.jsx";
 import About from "./pages/About.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import Sales from "./pages/Sales.jsx";
 import NotFound from "./pages/NotFound.jsx";
-import NotFoundChild from "./pages/NotFoundChild.jsx";
-
-//layouts
-import RootLayout from "./layouts/RootLayout.jsx";
 import Intro from "./pages/Intro.jsx";
-import HomeLayout from "./layouts/HomeLayout.jsx";
+//home section pages
+import Dashboard from "./pages/dashboard/Dashboard.jsx";
+import Sales from "./pages/dashboard/Sales.jsx";
+import Help from "./pages/dashboard/Help.jsx";
+import Inventory from "./pages/dashboard/Inventory.jsx";
+import Manage from "./pages/dashboard/Manage.jsx";
+import Settings from "./pages/dashboard/Settings.jsx";
+import Statistics from "./pages/dashboard/Statistics.jsx";
+import Supply from "./pages/dashboard/Supply.jsx";
+import NotFoundChild from "./pages/dashboard/NotFoundChild.jsx";
+import EditUser from "./pages/dashboard/EditUser.jsx";
+
 
 
 const router = createBrowserRouter(
@@ -29,9 +37,18 @@ const router = createBrowserRouter(
       <Route index                      element={<Intro />} />
       <Route path="login"               element={<Login />} />
       <Route path="home"                element={<HomeLayout />} >
-        <Route path="dashboard"           element={<Dashboard />} />
-        <Route path="sales"               element={<Sales />} />
-        <Route path ="*" element={<NotFoundChild/>}/>
+          <Route path="dashboard"           element={<Dashboard />} />
+          <Route path="sales"               element={<Sales />} />
+          <Route path="help"               element={<Help />} />
+          <Route path="inventory"               element={<Inventory />} />
+          <Route path="manage"               element={<Manage />} >
+            <Route path="edit/:id"   element={<EditUser/>}/>
+          </Route>
+          <Route path="settings"               element={<Settings />} />
+          <Route path="statistics"               element={<Statistics />} />
+          <Route path="supply"               element={<Supply />} />
+          {/* catch-all child route for 404 */}
+          <Route path ="*" element={<NotFoundChild/>}/>
       </Route>
       <Route path="about"               element={<About />} />
       
