@@ -7,7 +7,10 @@ function EditUser() {
     const { id } = useParams();
     
   return (
-    <div>Editing user for: {id}</div>
+    <section>
+      
+    </section>
+    
   )
 }
 
