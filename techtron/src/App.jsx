@@ -27,6 +27,7 @@ import Statistics from "./pages/dashboard/Statistics.jsx";
 import Supply from "./pages/dashboard/Supply.jsx";
 import NotFoundChild from "./pages/dashboard/NotFoundChild.jsx";
 import EditUser from "./pages/dashboard/EditUser.jsx";
+import CustomerRequests from "./pages/dashboard/CustomerRequests.jsx";
 
 
 
@@ -47,6 +48,7 @@ const router = createBrowserRouter(
           <Route path="settings"               element={<Settings />} />
           <Route path="statistics"               element={<Statistics />} />
           <Route path="supply"               element={<Supply />} />
+          <Route path="requests"               element={<CustomerRequests />} />
           {/* catch-all child route for 404 */}
           <Route path ="*" element={<NotFoundChild/>}/>
       </Route>

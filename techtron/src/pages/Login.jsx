@@ -79,7 +79,7 @@ function Login() {
                   </label>
                   <input
                     id="emailOrUsername"
-                    type="email"
+                    type="text"
                     className="bg-[#F8F8F8] border border-[#EBEBEB] text-gray-800 placeholder-[#D3D3D3] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                     placeholder="Your email address"
                   />

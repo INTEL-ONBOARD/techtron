@@ -12,6 +12,14 @@ import { useToast } from "../../components/ToastService";
 
 function Dashboard() {
 
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
   //3 uis for 3 roles: owner, assistant, (and cashier?)
   const [userRole, setUserRole] = useState("assistant");
   const toast = useToast();
@@ -232,7 +240,7 @@ function Dashboard() {
               <h2 class="text-black text-3xl font-bold">
                 Welcome Back, How is your day?
               </h2>
-              <h1 className="">2024 - 12 -29</h1>
+              <h1 className="">{formattedDate}</h1>
               <h1>Last logged in: 18:34</h1>
             </div>
           </section>
@@ -245,7 +253,7 @@ function Dashboard() {
           <hr className="flex-grow ml-4 mt-3 mr-10 border-t border-[#F0F0F0]" />
         </div>
 
-        <div className="flex flex-col xl:flex-row divide-[#F1F1F1] m-10 gap-6">
+        <div className="flex flex-col xl:flex-row divide-x divide-[#F1F1F1] m-10 gap-6">
           {/* Scrollable User List (Left Section) */}
           <DashboardCard
               imageSrc={dash_inv}

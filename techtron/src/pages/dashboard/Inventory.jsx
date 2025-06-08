@@ -146,8 +146,8 @@ function Inventory() {
 
         {/* inventory textfiels section(right) */}
         <div className="w-1/3">
-          <div className="text-xl font-medium mb-5">Add Item</div>
-
+          <div className="text-xl font-medium mb-1">Add Item</div>
+          <hr className="mb-5"/>
           {/* input fields */}
           <div className="flex flex-row justify-between">
             <div className="mb-2 ml-2 mr-2 w-1/2">
@@ -312,7 +312,7 @@ function Inventory() {
                 field to proceed.
               </p>*/}
           </div>
-          <div>
+          <div className="ml-2">
             <label
               for="message"
               className="block mb-2 text-sm font-medium text-[#D3D3D3] "

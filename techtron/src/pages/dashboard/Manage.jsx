@@ -74,7 +74,9 @@ function Manage() {
               more recently with desktop publishing software like Aldus
               PageMaker including versions of Lorem Ipsum
             </p>
-            <button className="w-40 transition duration-200 bg-[#1A318C] hover:bg-blue-700 focus:bg-blue-700 focus:shadow-sm focus:ring-4 focus:ring-blue-900 focus:ring-opacity-50 text-white py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md font-semibold text-center inline-block">
+            <button
+            onClick={()=> loadEditUser("")} 
+            className="w-40 transition duration-200 bg-[#1A318C] hover:bg-blue-700 focus:bg-blue-700 focus:shadow-sm focus:ring-4 focus:ring-blue-900 focus:ring-opacity-50 text-white py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md font-semibold text-center inline-block">
               <span className="inline-block mr-2">New User</span>
             </button>
           </div>
@@ -83,7 +85,7 @@ function Manage() {
         {/*conditionally renders table data and user configuraion outlet*/}
         {!isEditUserOutletOpen ? (
           //this is the table
-          <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-10">
+          <div className="relative overflow-x-auto sm:rounded-lg mt-10">
             <table className="w-full text-sm text-left rtl:text-right text-gray-500">
               <thead className="text-xs text-white uppercase bg-[#1A318C]">
                 <tr>

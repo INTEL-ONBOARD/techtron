@@ -11,6 +11,7 @@ import sidebar_inventory_img from '../assets/sidebar_inventory.png';
 import sidebar_logout_img from '../assets/sidebar_logout.png';
 import sidebar_sales_img from '../assets/sidebar_sales.png';
 import sidebar_settings_img from '../assets/sidebar_settings.png';
+import sidebar_customer_requests_img from '../assets/sidebar_customer_requests.png';
 function Sidebar() {
 
    //to highlight the currrent page's sidebar item from the sidebar
@@ -57,6 +58,13 @@ function Sidebar() {
             <Link to="manage" className={`${currentPath === '/home/manage' ? 'bg-blue-200':""} flex items-center p-2 text-[#939393] rounded-lg hover:bg-blue-100 translate hover:translate-x-1 delay-200 duration-300 group`}>
             <img className='w-6' src={sidebar_manage_img} alt="" />
                <span className="flex-1 ms-5 whitespace-nowrap">Management</span>
+               {/* <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full">3</span> */}
+            </Link>
+         </li>
+         <li>
+            <Link to="requests" className={`${currentPath === '/home/requests' ? 'bg-blue-200':""} flex items-center p-2 text-[#939393] rounded-lg hover:bg-blue-100 translate hover:translate-x-1 delay-200 duration-300 group`}>
+            <img className='w-6' src={sidebar_customer_requests_img} alt="" />
+               <span className="flex-1 ms-5 whitespace-nowrap">Customer Requests</span>
                {/* <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full">3</span> */}
             </Link>
          </li>
