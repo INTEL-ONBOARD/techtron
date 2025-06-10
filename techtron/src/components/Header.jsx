@@ -27,42 +27,12 @@ function Header() {
             </Link>
           </div>
           <div className="flex items-center">
-            <div className="flex items-center ms-3">
-              <div>
-                <button 
-                  type="button" 
-                  className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300" 
-                  aria-expanded="false" 
-                  data-dropdown-toggle="dropdown-user"
-                >
-                  <span className="sr-only">Open user menu</span>
-                  <img className="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo"/>
-                </button>
-              </div>
-              <div className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-sm shadow-sm" id="dropdown-user">
-                <div className="px-4 py-3" role="none">
-                  <p className="text-sm text-gray-900" role="none">
-                    Neil Sims
-                  </p>
-                  <p className="text-sm font-medium text-gray-900 truncate" role="none">
-                    neil.sims@flowbite.com
-                  </p>
-                </div>
-                <ul className="py-1" role="none">
-                  <li>
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Dashboard</a>
-                  </li>
-                  <li>
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
-                  </li>
-                  <li>
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Earnings</a>
-                  </li>
-                  <li>
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
-                  </li>
-                </ul>
-              </div>
+            <div className="flex flex-row items-center gap-6 ms-3">
+              <span>
+                <p className='text-md font-normal text-[#3E3F43]'>Mr. Kiriella</p>
+                <p className='text-sm font-semibold text-[#3E3F43]'>Admin</p>
+              </span>
+              <img className="w-10 h-10 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user profile image"/>
             </div>
           </div>
         </div>
