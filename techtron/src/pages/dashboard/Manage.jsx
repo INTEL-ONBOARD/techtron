@@ -2,10 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import axios from "axios";
 // If you used a single file (`dto/DTOs.js`):
- import { UserResponse } from '../../dto/DTO.jsx';
-//import images
-// import delete_img from "../../assets/delete.png";
-// import edit_img from "../../assets/edit.png";
+ import { UserResponse, CreateUserDto, CreateUserResponseDto, UpdateUserDto} from '../../dto/DTO.jsx';
 
 function Manage() {
   const navigate = useNavigate();
@@ -18,6 +15,8 @@ function Manage() {
   const [isAddUserOutletOpen, setAddUserOutletOpen] = useState(false);
   const [isEditUserOutletOpen, setEditUserOutletOpen] = useState(false);
 
+
+  //user table_____________________________________________________________________________________________________
   const [users, setUsers] = useState([]);
   //users that only shows up on the paginated table
   const usersPerPage = 5;
@@ -33,76 +32,80 @@ function Manage() {
 
 //create user________________________________________________________________________________________________________
   // Local state for form fields
-  // const [formData, setFormData] = useState({
-  //   username: '',
-  //   email: '',
-  //   password: '',
-  //   user_role_id: 'manager',         // default role
-  //   last_login: new Date(),          // default to now
-  //   last_updated: new Date(),        // default to now
-  //   isActive: true,
-  // });
+  const [formAddData, setFormAddData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    user_role_id: 'manager',         // default role
+    last_login: new Date(),          // default to now
+    last_updated: new Date(),        // default to now
+    isActive: true,
+  });
 
-  // // Handle input changes for text / email / password
-  // const handleInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: value,
-  //   }));
-  // };
+  // Handle input changes for text / email / password
+  const handleInputChange = (e) => {
+    // console.log("triggered")
+    const { name, value } = e.target;
+    console.log(name+": "+value)
+    setFormAddData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-  // // Handle boolean (checkbox) change for isActive
-  // const handleCheckboxChange = (e) => {
-  //   const { name, checked } = e.target;
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: checked,
-  //   }));
-  // };
+  // Exclusively handle boolesn input changes for status
+  const handleStatusInputChange = (e) => {
+    const { name, value } = e.target;
+    console.log(name+": "+value)
+    const newValue = name === "isActive" ? (value === "true") : value;
+    setFormAddData(prev => ({ ...prev, [name]: newValue }));
+  };
 
-  // // Submit handler: we inject current date for last_login & last_updated
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setErrorMsg('');
-  //   setSuccessMsg('');
+  // Submit handler: we inject current date for last_login & last_updated
+  const createUser = async (e) => {
+    //e.preventDefault();
+    setLoading(true);
+    // setErrorMsg('');
+    // setSuccessMsg('');
+    console.log("starting cereate user");
 
-  //   try {
-  //     const now = new Date();
-  //     const dto = new CreateUserDto({
-  //       username: formData.username,
-  //       email: formData.email,
-  //       password: formData.password,
-  //       user_role_id: formData.user_role_id,
-  //       last_login: now,       // automatically set to “now”
-  //       last_updated: now,     // automatically set to “now”
-  //       isActive: formData.isActive,
-  //     });
+    try {
+      const now = new Date();
+      console.log(formAddData)
+      const dto = new CreateUserDto({
+        username: formAddData.username,
+        email: formAddData.email,
+        password: formAddData.password,
+        user_role_id: formAddData.user_role_id,
+        last_login: now,       // automatically set to “now”
+        last_updated: now,     // automatically set to “now”
+        isActive: formAddData.isActive,
+      });
+      console.log(dto)
+      const responseDto = await axios.post("https://extream-backend.onrender.com/api/users", dto.toJSON())
 
-  //     const responseDto = await axios.post(API_URL, dto.toJSON());;
+      if (responseDto.success) {
+        console.log(
+          `User created! ID: ${responseDto.userId}, at ${responseDto.createdOn}`
+        );
+        // Clear only the inputs we actually used
+        setFormAddData((prev) => ({
+          ...prev,
+          username: '',
+          email: '',
+          password: '',
+        }));
+      } else {
+        //setErrorMsg(`API Error: ${responseDto.message}`);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  //     if (responseDto.success) {
-  //       setSuccessMsg(
-  //         `User created! ID: ${responseDto.userId}, at ${responseDto.createdOn}`
-  //       );
-  //       // Clear only the inputs we actually used
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         username: '',
-  //         email: '',
-  //         password: '',
-  //       }));
-  //     } else {
-  //       setErrorMsg(`API Error: ${responseDto.message}`);
-  //     }
-  //   } catch (err) {
-  //     setErrorMsg(err.response?.data?.message || err.message);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  //__________________________________________________________________________________________________________________
+  //update user__________________________________________________________________________________________________________________
 
   // Loading user data into edit modal's textboxes
   const loadEditUser = async (userId) => {
@@ -196,15 +199,16 @@ function Manage() {
               PageMaker including versions of Lorem Ipsum
             </p>
             <button
-            onClick={()=> loadEditUser("")} 
-            className="w-40 transition duration-200 bg-[#1A318C] hover:bg-blue-700 focus:bg-blue-700 focus:shadow-sm focus:ring-4 focus:ring-blue-900 focus:ring-opacity-50 text-white py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md font-semibold text-center inline-block">
+            disabled = {isAddUserOutletOpen || isEditUserOutletOpen}
+            onClick={()=> setAddUserOutletOpen(true)} 
+            className="w-40 transition duration-200 bg-[#1A318C] hover:bg-blue-700 disabled:bg-gray-300 focus:bg-blue-700 focus:shadow-sm focus:ring-4 focus:ring-blue-900 focus:ring-opacity-50 text-white py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md font-semibold text-center inline-block">
               <span className="inline-block mr-2">New User</span>
             </button>
           </div>
         </div>
 
         {/*conditionally renders table data and user configuraion outlet*/}
-        {(!isEditUserOutletOpen) ? (
+        {(!isEditUserOutletOpen && !isAddUserOutletOpen) ? (
           //this is the table
           <div className="relative overflow-x-auto sm:rounded-lg mt-10">
             <table className="w-full text-sm text-left rtl:text-right text-gray-500">
@@ -358,8 +362,12 @@ function Manage() {
                         Username
                       </label>
                       <input
-                        id="username"
                         type="text"
+                        id="username"
+                        name="username"
+                        value={formAddData.username}
+                        onChange={handleInputChange}
+                        required
                         className="bg-[#F8F8F8] border border-[#EBEBEB] text-gray-800 placeholder-[#D3D3D3] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                         placeholder="User's name"
                       />
@@ -376,8 +384,12 @@ function Manage() {
                         Email
                       </label>
                       <input
-                        id="email"
                         type="email"
+                        id="email"
+                        name="email"
+                        value={formAddData.email}
+                        onChange={handleInputChange}
+                        required
                         className="bg-[#F8F8F8] border border-[#EBEBEB] text-gray-800 placeholder-[#D3D3D3] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                         placeholder="User email address"
                       />
@@ -395,14 +407,19 @@ function Manage() {
                       </label>
                       <div className="relative">
                         <select
-                          id="userRole"
+                          id="user_role_id"
+                          name="user_role_id"
+                          value={formAddData.user_role_id}
+                          onChange={handleInputChange}
                           className="peer bg-[#F8F8F8] border border-[#EBEBEB] text-[#7c7c7c] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                         >
                           {/* <option value="" className="text-gray-400" disabled selected>Choose a profile</option> */}
-                          <option value="CA">Assistant</option>
-                          <option value="US">Cashier</option>
-                          <option value="FR">Owner</option>
-                          <option value="DE">Manager</option>
+                          <option value="admin">Admin</option>
+                          <option value="mechanic">Mechanic</option>
+                          <option value="manager">Manager</option>
+                          <option value="salesman">Salesman</option>
+                          <option value="supplier">Supplier</option>
+                          <option value="custom">Custom</option>
                         </select>
                       </div>
                       {/* <p className="mt-2 text-sm text-red-400">
@@ -438,8 +455,12 @@ function Manage() {
                         New Password
                       </label>
                       <input
-                        id="newPassword"
                         type="password"
+                        id="password"
+                        name="password"
+                        value={formAddData.password}
+                        onChange={handleInputChange}
+                        required
                         className="bg-[#F8F8F8] border border-[#EBEBEB] text-gray-800 placeholder-[#D3D3D3] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                         placeholder="Your new password"
                       />
@@ -467,7 +488,32 @@ function Manage() {
             </p>*/}
                     </div>
                   </div>
-                  <div className="mb-2 ml-2 mr-2 w-1/3">
+                  <div className="w-1/3 mr-4 ml-4">
+                      <label
+                        htmlFor="userRole"
+                        className="block mb-2 text-sm font-medium text-[#D3D3D3]"
+                      >
+                        Status
+                      </label>
+                      <div className="relative">
+                        <select
+                          id="isActive"
+                          name="isActive"
+                          value={formAddData.isActive}
+                          onChange={handleStatusInputChange}
+                          className="peer bg-[#F8F8F8] border border-[#EBEBEB] text-[#7c7c7c] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
+                        >
+                          {/* <option value="" className="text-gray-400" disabled selected>Choose a profile</option> */}
+                          <option value={true}>Active</option>
+                          <option value={false}>Disabled</option>
+                        </select>
+                      </div>
+                      {/* <p className="mt-2 text-sm text-red-400">
+                <span className="font-medium">Error:</span> Please fill out this
+                field to proceed.
+              </p> */}
+                    </div>
+                  {/* <div className="mb-2 ml-2 mr-2 w-1/3">
                     <label
                       htmlFor="otpCode"
                       className="block mb-2 text-sm font-medium text-[#D3D3D3]"
@@ -480,11 +526,11 @@ function Manage() {
                       className="bg-[#F8F8F8] border border-[#EBEBEB] text-gray-800 placeholder-[#D3D3D3] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                       placeholder="Your email address"
                     />
-                    {/*<p className="mt-2 text-sm text-red-400">
+                    <p className="mt-2 text-sm text-red-400">
               <span className="font-medium">Error:</span> Please fill out this
               field to proceed.
-            </p>*/}
-                  </div>
+            </p>
+                  </div> */}
                   <div className="pl-4 pr-4 mt-7"></div>
                 </div>
 
@@ -602,6 +648,7 @@ function Manage() {
                       //clear textboxes
                       //show table
                       setEditUserOutletOpen(false);
+                      setAddUserOutletOpen(false);
                     }}
                     className="w-40 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-lg shadow-sm transition duration-200 hover:bg-red-900 focus:bg-red-700 focus:shadow-sm focus:ring-4 focus:ring-red-900 focus:ring-opacity-50"
                   >
@@ -613,11 +660,12 @@ function Manage() {
                       //clear textboxes
                       //refresh table or redirect to this page
                       //show table
+                      createUser();
                       setEditUserOutletOpen(false);
                     }}
                     className="w-40 py-2.5 text-sm font-semibold text-white bg-[#1A318C] rounded-lg shadow-sm transition duration-200 hover:bg-blue-700 focus:bg-blue-900 focus:shadow-sm focus:ring-4 focus:ring-blue-900 focus:ring-opacity-50"
                   >
-                    Update User
+                    Add User
                   </button>
                 </div>
               </div>
