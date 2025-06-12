@@ -157,56 +157,96 @@ export class CreateUserResponseDto extends BaseResponse {
 /**
  * DTO for updating an existing user.
  */
-export class UpdateUserDto {
+/** DTO for updating users (PUT) */
+export class UpdateUserDto extends CreateUserDto {
   /**
    * @param {Object} obj
    * @param {string} obj.id
    * @param {string} obj.username
    * @param {string} obj.email
-   * @param {string} obj.user_role_id
    * @param {string} obj.password
+   * @param {string} obj.user_role_id
    * @param {string|Date} obj.last_login
    * @param {string|Date} obj.last_updated
+   * @param {Object} obj.user_role
    * @param {boolean} obj.active
    */
   constructor({
     id,
     username,
     email,
-    user_role_id,
     password,
+    user_role_id,
     last_login,
     last_updated,
+    user_role,
     active,
   }) {
+    super({ username, email, password, user_role_id, last_login, last_updated, active });
     this.id = id;
-    this.username = username;
-    this.email = email;
-    this.user_role_id = user_role_id;
-    this.password = password;
-    this.last_login = this.toISOString(last_login);
-    this.last_updated = this.toISOString(last_updated);
-    this.active = active;
-  }
-
-  toISOString(value) {
-    return typeof value === 'string' ? value : new Date(value).toISOString();
+    this.user_role = user_role; // include nested role object
   }
 
   toJSON() {
+    // merge base fields + id + nested user_role
     return {
       id: this.id,
-      username: this.username,
-      email: this.email,
-      user_role_id: this.user_role_id,
-      password: this.password,
-      last_login: this.last_login,
-      last_updated: this.last_updated,
-      active: this.active,
+      ...super.toJSON(),
+      user_role: this.user_role,
     };
   }
 }
 
+
+/**
+ * Payload for logging in. 
+ * Either `username` or `email` must be provided; `password` is required.
+ */
+export class LoginDto {
+  /**
+   * @param {Object} obj
+   * @param {string} [obj.username]
+   * @param {string} [obj.email]
+   * @param {string} obj.password
+   */
+  constructor({ username, email, password }) {
+    // if (!username && !email) {
+    //   throw new Error('Either username or email is required');
+    // }
+    // if (!password) {
+    //   throw new Error('Password is required');
+    // }
+    this.username = username;
+    this.email = email;
+    this.password = password;
+  }
+
+  toJSON() {
+    // Only include whichever of username/email is present
+    const payload = { password: this.password };
+    payload.username = this.username;
+    payload.email = this.email;
+    return payload;
+  }
+}
+
+/**
+ * Response envelope for login: { success, message, data: { …user fields… } }
+ */
+export class LoginResponseDto {
+  /**
+   * @param {Object} obj
+   * @param {boolean} obj.success
+   * @param {string} obj.message
+   * @param {Object} obj.data        // the full user object
+   */
+  constructor({ success, message, data }) {
+    this.success = success;
+    this.message = message;
+    // reuse your existing User class to parse
+    this.user = data ? new User(data) : null;
+  }
+}
 
 // // dto/DTOs.js
 

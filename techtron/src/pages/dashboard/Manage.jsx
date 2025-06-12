@@ -42,24 +42,78 @@ function Manage() {
     isActive: true,
   });
 
-  // Handle input changes for text / email / password
-  const handleInputChange = (e) => {
-    // console.log("triggered")
-    const { name, value } = e.target;
-    console.log(name+": "+value)
+  const [formUpdateData, setFormUpdateData] = useState({
+    id: '',
+    username: '',
+    email: '',
+    password: '',       // optional on update
+    user_role_id: '',
+    last_login: '',
+    last_updated: '',
+    user_role: {},
+    active: true,
+  });
+
+  // // Used when isAddUserOutletOpen is true 
+  // const handleAddChange = (e) => {
+  //   // console.log("triggered")
+  //   const { name, value } = e.target;
+  //   console.log(name+": "+value)
+  //   setFormAddData((prev) => ({
+  //     ...prev,
+  //     [name]: value,
+  //   }));
+  // };
+  //   // Used when isUpdateUserOutletOpen is true 
+  // const handleUpdateChange = (e) => {
+  //   // console.log("triggered")
+  //   const { name, value } = e.target;
+  //   console.log(name+": "+value)
+  //   setFormUpdateData((prev) => ({
+  //     ...prev,
+  //     [name]: value,
+  //   }));
+  // };
+
+  const handleInput = (e) => {
+  const { name, value } = e.target;
+  
+  if (isAddUserOutletOpen) {
+    console.log(`Creating: ${name}: ${value}`);
     setFormAddData((prev) => ({
       ...prev,
       [name]: value,
     }));
-  };
+  } else if (isEditUserOutletOpen) {
+    console.log(`Updating: ${name}: ${value}`);
+    setFormUpdateData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
+};
 
-  // Exclusively handle boolesn input changes for status
-  const handleStatusInputChange = (e) => {
-    const { name, value } = e.target;
-    console.log(name+": "+value)
-    const newValue = name === "isActive" ? (value === "true") : value;
-    setFormAddData(prev => ({ ...prev, [name]: newValue }));
-  };
+const handleStatusInput = (e) => {
+  const { name, value } = e.target;
+  console.log(`${name}: ${value}`);
+
+  // If this is the isActive field, convert "true"/"false" to boolean
+  const newValue = name === "isActive"
+    ? (value === "true")
+    : value;
+
+  if (isAddUserOutletOpen) {
+    setFormAddData(prev => ({
+      ...prev,
+      [name]: newValue,
+    }));
+  } else if (isEditUserOutletOpen) {
+    setFormUpdateData(prev => ({
+      ...prev,
+      [name]: newValue,
+    }));
+  }
+};
 
   // Submit handler: we inject current date for last_login & last_updated
   const createUser = async (e) => {
@@ -105,10 +159,48 @@ function Manage() {
     }
   };
 
-  //update user__________________________________________________________________________________________________________________
+  
+  // Submit handler: we inject current date for last_login & last_updated
+  const updateUser = async (e) => {
+    //e.preventDefault();
+    setLoading(true);
+    // setErrorMsg('');
+    // setSuccessMsg('');
+    console.log("starting update user");
+    try {
+
+      const dto = new UpdateUserDto(formUpdateData);
+      console.log(dto)
+      // PUT to /api/users/{id}
+      const raw = await axios.put(`https://localhost:8080/api/users/${dto.id}`, dto.toJSON());
+      const responseDto = new CreateUserResponseDto(raw.data);
+
+      if (responseDto.success) {
+        console.log(
+          `User updated! ID: ${responseDto.userId}, at ${responseDto.createdOn}`
+        );
+        // Clear only the inputs we actually used
+        setFormAddData((prev) => ({
+          ...prev,
+          username: '',
+          email: '',
+          password: '',
+        }));
+      } else {
+        //setErrorMsg(`API Error: ${responseDto.message}`);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
 
   // Loading user data into edit modal's textboxes
-  const loadEditUser = async (userId) => {
+  const loadEditUser = async (existingUser) => {
     try {
       setEditUserOutletOpen(true);
       if (true) {
@@ -116,6 +208,26 @@ function Manage() {
     } catch (error) {
       console.error("Error loading user data htmlFor edit:", error);
     }
+    if (existingUser) {
+      setFormUpdateData({
+        id: existingUser.id,
+        username: existingUser.username,
+        email: existingUser.email,
+        password: '', // leave blank so user only types a new one if they want
+        user_role_id: existingUser.userRoleId,
+        last_login: existingUser.lastLogin,
+        last_updated: existingUser.lastUpdated,
+        user_role: {
+          id: existingUser.userRole.id,
+          role_name: existingUser.userRole.roleName,
+          permissions: existingUser.userRole.permissions,
+          permission_level: existingUser.userRole.permissionLevel,
+        },
+        active: existingUser.active,
+      });
+    } else {console.log("brrr")}
+    console.log(formUpdateData)
+
   };
 
   useEffect(() => {
@@ -270,7 +382,7 @@ function Manage() {
                     <i
                       className="fi fi-rs-edit mr-4 hover:text-blue-600 hover:font-bold hover:rounded-full w-10"
                       onClick={() => {
-                        loadEditUser("kamal");
+                        loadEditUser(user);
                       }}
                     ></i>
                     {/* {userData && userData.id !== user.id && (  // Conditionally render delete button */}
@@ -365,8 +477,8 @@ function Manage() {
                         type="text"
                         id="username"
                         name="username"
-                        value={formAddData.username}
-                        onChange={handleInputChange}
+                        value={isAddUserOutletOpen?formAddData.username : isEditUserOutletOpen?formUpdateData.username: undefined}
+                        onChange={handleInput}
                         required
                         className="bg-[#F8F8F8] border border-[#EBEBEB] text-gray-800 placeholder-[#D3D3D3] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                         placeholder="User's name"
@@ -387,8 +499,8 @@ function Manage() {
                         type="email"
                         id="email"
                         name="email"
-                        value={formAddData.email}
-                        onChange={handleInputChange}
+                        value={isAddUserOutletOpen?formAddData.email : isEditUserOutletOpen?formUpdateData.email: undefined}
+                        onChange={handleInput}
                         required
                         className="bg-[#F8F8F8] border border-[#EBEBEB] text-gray-800 placeholder-[#D3D3D3] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                         placeholder="User email address"
@@ -409,8 +521,8 @@ function Manage() {
                         <select
                           id="user_role_id"
                           name="user_role_id"
-                          value={formAddData.user_role_id}
-                          onChange={handleInputChange}
+                          value={isAddUserOutletOpen?formAddData.user_role_id : isEditUserOutletOpen?formUpdateData.user_role_id: undefined}
+                          onChange={handleInput}
                           className="peer bg-[#F8F8F8] border border-[#EBEBEB] text-[#7c7c7c] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                         >
                           {/* <option value="" className="text-gray-400" disabled selected>Choose a profile</option> */}
@@ -438,6 +550,8 @@ function Manage() {
                       </label>
                       <input
                         id="oldPassword"
+                        value={isAddUserOutletOpen?formAddData.password : isEditUserOutletOpen?formUpdateData.password: undefined}
+                        readOnly
                         type="password"
                         className="bg-[#F8F8F8] border border-[#EBEBEB] text-gray-800 placeholder-[#D3D3D3] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                         placeholder="Your current password"
@@ -458,8 +572,8 @@ function Manage() {
                         type="password"
                         id="password"
                         name="password"
-                        value={formAddData.password}
-                        onChange={handleInputChange}
+                        
+                        onChange={handleInput}
                         required
                         className="bg-[#F8F8F8] border border-[#EBEBEB] text-gray-800 placeholder-[#D3D3D3] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                         placeholder="Your new password"
@@ -499,8 +613,8 @@ function Manage() {
                         <select
                           id="isActive"
                           name="isActive"
-                          value={formAddData.isActive}
-                          onChange={handleStatusInputChange}
+                          value={isAddUserOutletOpen?formAddData.isActive : isEditUserOutletOpen?formUpdateData.isActive: undefined}
+                          onChange={handleStatusInput}
                           className="peer bg-[#F8F8F8] border border-[#EBEBEB] text-[#7c7c7c] text-sm rounded-lg focus:ring-blue-400 focus:border-blue-400 block w-full p-2.5"
                         >
                           {/* <option value="" className="text-gray-400" disabled selected>Choose a profile</option> */}
@@ -660,12 +774,13 @@ function Manage() {
                       //clear textboxes
                       //refresh table or redirect to this page
                       //show table
-                      createUser();
+                      //createUser();
+                      {isAddUserOutletOpen?createUser() : isEditUserOutletOpen?updateUser(): undefined}
                       setEditUserOutletOpen(false);
                     }}
                     className="w-40 py-2.5 text-sm font-semibold text-white bg-[#1A318C] rounded-lg shadow-sm transition duration-200 hover:bg-blue-700 focus:bg-blue-900 focus:shadow-sm focus:ring-4 focus:ring-blue-900 focus:ring-opacity-50"
                   >
-                    Add User
+                    {isAddUserOutletOpen? "Add User" : isEditUserOutletOpen? "Update User": "Submit"}
                   </button>
                 </div>
               </div>
